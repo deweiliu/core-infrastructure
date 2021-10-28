@@ -13,8 +13,8 @@ pipeline {
                 dir('cdk'){ sh 'npm install'}
             }
         }
-    }        
-    stage('CDK Deploy'){
+       
+        stage('CDK Deploy'){
             steps{
                 dir('cdk'){ sh 'npm run cdk-deploy'}
             }
