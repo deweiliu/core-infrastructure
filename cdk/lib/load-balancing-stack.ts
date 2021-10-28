@@ -12,13 +12,15 @@ export interface LoadBalancingStackProps extends cdk.NestedStackProps {
 export class LoadBalancingStack extends cdk.NestedStack {
     public loadBalancer: elb.ApplicationLoadBalancer;
     public albTargetGroup: elb.ApplicationTargetGroup;
-    public elbSecurityGroup: ec2.ISecurityGroup;
+    public albSecurityGroup: ec2.ISecurityGroup;
+    public httpsListener: elb.ApplicationListener;
+
     constructor(scope: cdk.Construct, id: string, props: LoadBalancingStackProps) {
         super(scope, id, props);
 
-        this.elbSecurityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
-        this.elbSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80));
-        this.elbSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443));
+        this.albSecurityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
+        this.albSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80));
+        this.albSecurityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(443));
 
         this.loadBalancer = new elb.ApplicationLoadBalancer(this,
             'HomeSiteApplicationLoadBalancer',
@@ -27,7 +29,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
                 http2Enabled: true,
                 internetFacing: true,
                 vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
-                securityGroup: this.elbSecurityGroup,
+                securityGroup: this.albSecurityGroup,
             });
 
         this.albTargetGroup = new elb.ApplicationTargetGroup(this, 'HomeSiteTargetGroup', {
@@ -38,7 +40,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
             targetType: elb.TargetType.IP,
         });
 
-        this.loadBalancer.addRedirect({
+        const httpListener = this.loadBalancer.addRedirect({
             sourcePort: 80, sourceProtocol: elb.ApplicationProtocol.HTTP,
             targetPort: 443, targetProtocol: elb.ApplicationProtocol.HTTPS,
         });
@@ -48,14 +50,12 @@ export class LoadBalancingStack extends cdk.NestedStack {
             validation: acm.CertificateValidation.fromDns(props.hostedZone),
         });
 
-        this.loadBalancer.addListener('HttpsListner', {
+        this.httpsListener = this.loadBalancer.addListener('HttpsListner', {
             port: 443,
             protocol: elb.ApplicationProtocol.HTTPS,
             defaultTargetGroups: [this.albTargetGroup],
             certificates: [certificate],
         });
 
-
-        
     }
 }
