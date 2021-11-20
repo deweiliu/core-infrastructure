@@ -33,22 +33,6 @@ export class CdkStack extends cdk.Stack {
       description: "The VPC where core Application Load Balancer is in",
       exportName: 'Core-Vpc',
     });
-    new cdk.CfnOutput(this, 'AlbVpcCidr', {
-      value: vpcStack.vpc.vpcCidrBlock,
-      description: "The CIDR of the VPC where core Application Load Balancer is in",
-      exportName: 'Core-VpcCidr',
-    });
-    new cdk.CfnOutput(this, 'AlbVpcPublicSubnets', {
-      value: vpcStack.vpc.publicSubnets.join(','),
-      description: "The public subnets of the VPC where core Application Load Balancer is in",
-      exportName: 'Core-AlbPublicSubnets',
-    });
-
-    new cdk.CfnOutput(this, 'AlbVpcPublicSubnetRouteTables', {
-      value: vpcStack.vpc.publicSubnets.map(subnet => subnet.routeTable.routeTableId).join(','),
-      description: "The public subnets route tables of the VPC where core Application Load Balancer is in",
-      exportName: 'Core-AlbPublicSubnetRouteTables',
-    });
 
     new cdk.CfnOutput(this, 'AlbListener', {
       value: albStack.httpsListener.listenerArn,
