@@ -7,7 +7,6 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
     "cdk-deploy": "cdk deploy --require-approval=never",
     "cdk-synth": "cdk synth"
   },

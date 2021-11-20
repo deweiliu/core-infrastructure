@@ -1,0 +1,34 @@
+---
+Description: DO NOT DELETE STACK! Core VPC that all resources are based on
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: core-igw
+
+  IgwAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+
+Outputs:
+  Vpc:
+    Description: Core VPC ID
+    Value: !Ref Vpc
+    Export:
+      Name: Core-Vpc
+  Igw:
+    Value: !GetAtt InternetGateway.InternetGatewayId
+    Export:
+      Name: Core-InternetGateway

@@ -6,7 +6,8 @@ import * as route53 from '@aws-cdk/aws-route53';
 import { PublicSubnet, Subnet } from '@aws-cdk/aws-ec2';
 
 export interface LoadBalancingStackProps extends cdk.NestedStackProps {
-    vpc: ec2.Vpc;
+    vpc: ec2.IVpc;
+    igw: string,
     hostedZone: route53.IHostedZone;
     maxAzs: number;
     appId: number;
@@ -31,7 +32,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
             new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
-                gatewayId: props.vpc.internetGatewayId as string,
+                gatewayId: props.igw,
             });
             subnets.push(subnet);
         });

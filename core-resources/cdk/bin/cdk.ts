@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from '@aws-cdk/core';
-import { CdkStack } from '../lib/core-infrastructure';
+import { CdkStack } from '../lib/core-resources';
 
 const app = new cdk.App();
-new CdkStack(app, 'CoreInfrastructure', {
+new CdkStack(app, 'CoreResources', {
   maxAzs: 2,
   appId: 1,
   /* If you don't specify 'env', this stack will be environment-agnostic.
