@@ -11,8 +11,7 @@ export class VpcStack extends cdk.NestedStack {
         super(scope, id, props);
         this.vpc = new ec2.Vpc(this, 'VPC', {
             cidr: "10.0.0.0/16",
-            subnetConfiguration: [{ cidrMask: 24, subnetType: ec2.SubnetType.PUBLIC, name: 'public-subnet-group' }],
-            maxAzs: props.maxAzs,
+            subnetConfiguration: [{ cidrMask: 28, subnetType: ec2.SubnetType.PUBLIC, name: 'default-public' }],
         });
     }
 }
