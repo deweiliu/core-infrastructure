@@ -11,7 +11,7 @@ pipeline {
         stage('Update Core VPC Resources'){
             steps{
                 dir('core-vpc'){
-                    sh 'aws cloudformation update-stack --stack-name CoreVpc --capabilities CAPABILITY_NAMED_IAM --template-body file://cloudformation.yml --tags Key=service,Value=core-vpc'
+                    sh 'aws cloudformation update-stack --region eu-west-2 --stack-name CoreVpc --capabilities CAPABILITY_NAMED_IAM --template-body file://cloudformation.yml --tags Key=service,Value=core-vpc'
                 }
             }
         }
