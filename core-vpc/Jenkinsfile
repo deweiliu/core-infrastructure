@@ -1,0 +1,17 @@
+pipeline {
+    agent {
+        label 'deployer-slave-amazon-linux'
+    }
+    
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+    }
+
+    stages {
+        stage('Update Core VPC Resources'){
+            steps{
+                sh 'aws cloudformation update-stack --stack-name CoreVpc --capabilities CAPABILITY_NAMED_IAM --template-body file://cloudformation.yml --tags Key=service,Value=core-vpc'
+            }
+        }
+    }
+}
