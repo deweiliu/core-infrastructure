@@ -8,6 +8,9 @@ Resources:
       EnableDnsHostnames: true
       EnableDnsSupport: true
       InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: core-vpc      
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
