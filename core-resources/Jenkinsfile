@@ -10,13 +10,13 @@ pipeline {
     stages {
         stage('Install CDK Packages'){
             steps{
-                dir('cdk'){ sh 'npm install'}
+                dir('core-resources/cdk'){ sh 'npm install'}
             }
         }
        
         stage('CDK Deploy'){
             steps{
-                dir('cdk'){ sh 'npm run cdk-deploy'}
+                dir('core-resources/cdk'){ sh 'npm run cdk-deploy'}
             }
         }
     }
