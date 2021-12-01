@@ -4,6 +4,7 @@ import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
 import * as route53 from '@aws-cdk/aws-route53';
 import { PublicSubnet, Subnet } from '@aws-cdk/aws-ec2';
+import { ListenerAction } from '@aws-cdk/aws-elasticloadbalancingv2';
 
 export interface LoadBalancingStackProps extends cdk.NestedStackProps {
     vpc: ec2.IVpc;
@@ -15,7 +16,7 @@ export interface LoadBalancingStackProps extends cdk.NestedStackProps {
 
 export class LoadBalancingStack extends cdk.NestedStack {
     public loadBalancer: elb.ApplicationLoadBalancer;
-    public albTargetGroup: elb.ApplicationTargetGroup;
+
     public albSecurityGroup: ec2.ISecurityGroup;
     public httpsListener: elb.ApplicationListener;
     constructor(scope: cdk.Construct, id: string, props: LoadBalancingStackProps) {
@@ -52,14 +53,6 @@ export class LoadBalancingStack extends cdk.NestedStack {
                 securityGroup: this.albSecurityGroup,
             });
 
-        this.albTargetGroup = new elb.ApplicationTargetGroup(this, 'AlbDefaultTargetGroup', {
-            port: 80,
-            protocol: elb.ApplicationProtocol.HTTP,
-            healthCheck: { enabled: true },
-            vpc: props.vpc,
-            targetType: elb.TargetType.IP,
-        });
-
         const httpListener = this.loadBalancer.addRedirect({
             sourcePort: 80, sourceProtocol: elb.ApplicationProtocol.HTTP,
             targetPort: 443, targetProtocol: elb.ApplicationProtocol.HTTPS,
@@ -73,7 +66,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
         this.httpsListener = this.loadBalancer.addListener('HttpsListner', {
             port: 443,
             protocol: elb.ApplicationProtocol.HTTPS,
-            defaultTargetGroups: [this.albTargetGroup],
+            defaultAction: ListenerAction.redirect({ host: 'dliu.com', permanent: true }),
             certificates: [certificate],
         });
     }
