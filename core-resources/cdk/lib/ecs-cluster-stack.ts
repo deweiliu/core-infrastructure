@@ -2,7 +2,6 @@
 import * as cdk from '@aws-cdk/core';
 
 export interface EcsClusterStackProps extends cdk.NestedStackProps {
-
     maxAzs: number;
     appId: number;
 }
