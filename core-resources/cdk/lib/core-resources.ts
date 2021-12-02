@@ -28,6 +28,7 @@ export class CdkStack extends cdk.Stack {
     const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
       maxAzs: props.maxAzs,
       appId: props.appId,
+      vpc,
     });
 
     // Create nested stacks
