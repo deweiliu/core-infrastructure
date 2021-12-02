@@ -1,6 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as route53 from '@aws-cdk/aws-route53';
 import { LoadBalancingStack } from './load-balancing-stack';
+import { EcsClusterStack } from './ecs-cluster-stack';
+
 import { Vpc } from '@aws-cdk/aws-ec2';
 export interface CdkStackProps extends cdk.StackProps {
   maxAzs: number;
@@ -21,6 +23,11 @@ export class CdkStack extends cdk.Stack {
     const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
       hostedZoneId: cdk.Fn.importValue('DLIUCOMHostedZoneID'),
       zoneName: 'dliu.com',
+    });
+
+    const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
+      maxAzs: props.maxAzs,
+      appId: props.appId,
     });
 
     // Create nested stacks
