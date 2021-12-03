@@ -46,11 +46,11 @@ export class CdkStack extends cdk.Stack {
       loadBalancerDnsName: albStack.loadBalancer.loadBalancerDnsName
     });
 
-    const certificate = new acm.Certificate(this, 'SSLCertificate', {
-      domainName: 'test.dliu.com',
-      validation: acm.CertificateValidation.fromDns(hostedZone),
-    });
-    albStack.httpsListener.addCertificates('TestCertificate', [certificate]);
+    // const certificate = new acm.Certificate(this, 'SSLCertificate', {
+    //   domainName: 'test.dliu.com',
+    //   validation: acm.CertificateValidation.fromDns(hostedZone),
+    // });
+    // albStack.httpsListener.addCertificates('TestCertificate', [certificate]);
     // Output stack variables
     new cdk.CfnOutput(this, 'Alb', {
       value: albStack.loadBalancer.loadBalancerArn,

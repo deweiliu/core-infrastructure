@@ -1,5 +1,4 @@
 import * as route53 from '@aws-cdk/aws-route53';
-import * as acm from '@aws-cdk/aws-certificatemanager';
 
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
@@ -12,7 +11,6 @@ import { ISecurityGroup, ISubnet, PublicSubnet } from '@aws-cdk/aws-ec2';
 import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
 import { IVpc } from '@aws-cdk/aws-ec2';
 import { NetworkMode, Protocol } from '@aws-cdk/aws-ecs';
-import { ApplicationListener } from '@aws-cdk/aws-elasticloadbalancingv2';
 import { IHostedZone } from '@aws-cdk/aws-route53';
 import { Duration } from '@aws-cdk/core';
 
@@ -53,7 +51,7 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         const ec2Role = new iam.Role(this, 'EC2Role', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-            managedPolicies: [iam.ManagedPolicy.fromManagedPolicyArn(this, 'EC2ContainerServicePolicy', 'AmazonEC2ContainerServiceforEC2Role')],
+            managedPolicies: [iam.ManagedPolicy.fromManagedPolicyArn(this, 'EC2ContainerServicePolicy', 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')],
             description: 'https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html',
         });
         const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
