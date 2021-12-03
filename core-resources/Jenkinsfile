@@ -13,6 +13,10 @@ pipeline {
                 dir('core-resources/cdk'){ sh 'npm install'}
             }
         }
+
+        stage('Wait Until Stack is Ready to Deploy'){
+            sh(script: 'aws cloudformation wait stack-update-complete --region eu-west-2 --stack-name CoreResources', returnStatus: true)
+        }
        
         stage('CDK Deploy'){
             steps{
