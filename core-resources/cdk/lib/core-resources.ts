@@ -38,9 +38,11 @@ export class CdkStack extends cdk.Stack {
     const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
       maxAzs: props.maxAzs,
       appId: props.appId,
-      vpc,igw,
-      httpsListener:albStack.httpsListener,
-      albSecurityGroup:albStack.albSecurityGroup,
+      vpc, igw,
+      httpsListener: albStack.httpsListener,
+      albSecurityGroup: albStack.albSecurityGroup,
+      hostedZone,
+      loadBalancerDnsName: albStack.loadBalancer.loadBalancerDnsName
     });
 
     // Output stack variables

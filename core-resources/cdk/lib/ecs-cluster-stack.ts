@@ -1,3 +1,4 @@
+import * as route53 from '@aws-cdk/aws-route53';
 
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
@@ -10,6 +11,8 @@ import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
 import { IVpc } from '@aws-cdk/aws-ec2';
 import { NetworkMode, Protocol } from '@aws-cdk/aws-ecs';
 import { ApplicationListener } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { IHostedZone } from '@aws-cdk/aws-route53';
+import { Duration } from '@aws-cdk/core';
 
 export interface EcsClusterStackProps extends cdk.NestedStackProps {
     maxAzs: number;
@@ -18,6 +21,8 @@ export interface EcsClusterStackProps extends cdk.NestedStackProps {
     igw: string;
     httpsListener: elb.IApplicationListener;
     albSecurityGroup: ISecurityGroup;
+    hostedZone: IHostedZone;
+    loadBalancerDnsName: string;
 }
 
 export class EcsClusterStack extends cdk.NestedStack {
@@ -38,11 +43,10 @@ export class EcsClusterStack extends cdk.NestedStack {
                 routeTableId: subnet.routeTable.routeTableId,
                 gatewayId: props.igw,
             });
-
             subnets.push(subnet);
         });
 
-        const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc });
+        const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc, clusterName: 'CoreCluster' });
         const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
@@ -92,5 +96,14 @@ export class EcsClusterStack extends cdk.NestedStack {
             targetGroups: [albTargetGroup],
             conditions: [elb.ListenerCondition.hostHeaders(['test.dliu.com'])],
         });
+
+        const record = new route53.CnameRecord(this, "CnameRecord", {
+            zone: props.hostedZone,
+            domainName: props.loadBalancerDnsName,
+            ttl: Duration.hours(1),
+            recordName: 'test',
+        });
+
+
     }
 }
