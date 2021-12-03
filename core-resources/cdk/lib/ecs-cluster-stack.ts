@@ -53,7 +53,7 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         const ec2Role = new iam.Role(this, 'EC2Role', {
             assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
-            managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerServiceforEC2Role')],
+            managedPolicies: [iam.ManagedPolicy.fromManagedPolicyArn(this, 'EC2ContainerServicePolicy', 'AmazonEC2ContainerServiceforEC2Role')],
             description: 'https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html',
         });
         const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
