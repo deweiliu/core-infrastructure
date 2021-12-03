@@ -15,7 +15,6 @@ export class EcsClusterStack extends cdk.NestedStack {
 
     constructor(scope: cdk.Construct, id: string, props: EcsClusterStackProps) {
         super(scope, id);
-        const vpc = new ec2.Vpc(this, 'Vpc', { maxAzs: 2 });
 
         const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc });
         const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
@@ -23,7 +22,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
             maxCapacity: 2,
-            vpc,
+            vpc: props.vpc, //new ec2.Vpc(this, 'Vpc', { maxAzs: 2 }),
         });
         const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', { autoScalingGroup: asg });
         cluster.addAsgCapacityProvider(capacityProvider);
