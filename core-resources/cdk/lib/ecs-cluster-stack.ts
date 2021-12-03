@@ -65,6 +65,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             portMappings: [{ containerPort: 80, hostPort: 80, protocol: Protocol.TCP }],
             logging: new ecs.AwsLogDriver({ streamPrefix: "home-site" }),
         });
+
         const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
         securityGroup.connections.allowFrom(props.albSecurityGroup, ec2.Port.tcp(80), 'Allow traffic from ELB');
         const service = new ecs.Ec2Service(this, 'Service', {
@@ -79,7 +80,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             protocol: elb.ApplicationProtocol.HTTP,
             healthCheck: { enabled: true },
             vpc: props.vpc,
-            targetType: elb.TargetType.INSTANCE,
+            targetType: elb.TargetType.IP,
             targets: [service.loadBalancerTarget({ containerName, containerPort: 80, protocol: Protocol.TCP })],
             // targets:[service],
         });
