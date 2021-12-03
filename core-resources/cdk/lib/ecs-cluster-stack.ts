@@ -50,6 +50,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             maxCapacity: 2,
             vpc: props.vpc, //new ec2.Vpc(this, 'Vpc', { maxAzs: 2 }),
             vpcSubnets: { subnets },
+            newInstancesProtectedFromScaleIn: false,
         });
         const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', { autoScalingGroup: asg });
         cluster.addAsgCapacityProvider(capacityProvider);
