@@ -15,7 +15,6 @@ export class CdkStack extends cdk.Stack {
     const vpc = Vpc.fromVpcAttributes(this, 'CoreVpc', {
       vpcId: cdk.Fn.importValue('Core-Vpc'),
       availabilityZones: cdk.Stack.of(this).availabilityZones,
-      publicSubnetIds:['i=fslaj']
     });
 
     const igw = cdk.Fn.importValue('Core-InternetGateway');
@@ -39,7 +38,7 @@ export class CdkStack extends cdk.Stack {
     const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
       maxAzs: props.maxAzs,
       appId: props.appId,
-      vpc,
+      vpc,igw,
     });
 
     // Output stack variables
