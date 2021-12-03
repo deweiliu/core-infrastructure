@@ -40,6 +40,7 @@ export class CdkStack extends cdk.Stack {
       appId: props.appId,
       vpc,igw,
       httpsListener:albStack.httpsListener,
+      albSecurityGroup:albStack.albSecurityGroup,
     });
 
     // Output stack variables

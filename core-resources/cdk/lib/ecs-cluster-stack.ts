@@ -3,7 +3,7 @@ import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as  autoscaling from '@aws-cdk/aws-autoscaling';
-import { ISubnet, PublicSubnet } from '@aws-cdk/aws-ec2';
+import { ISecurityGroup, ISubnet, PublicSubnet } from '@aws-cdk/aws-ec2';
 
 
 import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
@@ -17,6 +17,7 @@ export interface EcsClusterStackProps extends cdk.NestedStackProps {
     vpc: IVpc;
     igw: string;
     httpsListener: elb.IApplicationListener;
+    albSecurityGroup: ISecurityGroup;
 }
 
 export class EcsClusterStack extends cdk.NestedStack {
@@ -64,7 +65,9 @@ export class EcsClusterStack extends cdk.NestedStack {
             portMappings: [{ containerPort: 80, hostPort: 80, protocol: Protocol.TCP }],
             logging: new ecs.AwsLogDriver({ streamPrefix: "home-site" }),
         });
-        const service = new ecs.Ec2Service(this, 'Service', { cluster, taskDefinition });
+        const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
+        securityGroup.connections.allowFrom(props.albSecurityGroup, ec2.Port.tcp(80), 'Allow traffic from ELB');
+        const service = new ecs.Ec2Service(this, 'Service', { cluster, taskDefinition, securityGroups: [securityGroup] });
 
 
         const albTargetGroup = new elb.ApplicationTargetGroup(this, 'TargetGroup', {
@@ -83,24 +86,5 @@ export class EcsClusterStack extends cdk.NestedStack {
             targetGroups: [albTargetGroup],
             conditions: [elb.ListenerCondition.hostHeaders(['test.dliu.com'])],
         });
-
-        // const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
-
-        // securityGroup.connections.allowFrom(props.albSecurityGroup, ec2.Port.tcp(80), 'Allow traffic from ELB');
-
-
-        // const containerDefinition = taskDefinition.addContainer('TheContainer', {
-        //     image: ecs.ContainerImage.fromRegistry('foo/bar'),
-        //     memoryLimitMiB: 256,
-        // });
-
-        // const runTask = new tasks.EcsRunTask(this, 'RunFargate', {
-
-        //     cluster,
-        //     taskDefinition,
-        //     assignPublicIp: true,
-        //     containerOverrides: [{ containerDefinition }],
-        //     launchTarget: new tasks.EcsFargateLaunchTarget(),
-        // });
     }
 }
