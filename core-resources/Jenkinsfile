@@ -14,7 +14,7 @@ pipeline {
             }
         }
 
-        stage('Wait Until Stack is Ready to Deploy'){
+        stage('Wait for Stack Ready'){
             steps{
                 sh(script: 'aws cloudformation wait stack-update-complete --region eu-west-2 --stack-name CoreResources', returnStatus: true)
             }
