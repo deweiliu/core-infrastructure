@@ -60,14 +60,17 @@ export class EcsClusterStack extends cdk.NestedStack {
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
             maxCapacity: 2,
-            vpc: props.vpc, 
+            vpc: props.vpc,
             vpcSubnets: { subnets },
             newInstancesProtectedFromScaleIn: false,
             role: ec2Role,
         });
 
 
-        const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', { autoScalingGroup: asg });
+        const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', {
+            autoScalingGroup: asg,
+            enableManagedTerminationProtection: false,
+        });
         cluster.addAsgCapacityProvider(capacityProvider);
 
         const taskDefinition = new ecs.Ec2TaskDefinition(this, 'TaskDefinition', { networkMode: NetworkMode.AWS_VPC });
