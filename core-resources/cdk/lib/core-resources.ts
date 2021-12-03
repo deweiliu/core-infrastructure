@@ -39,6 +39,7 @@ export class CdkStack extends cdk.Stack {
       maxAzs: props.maxAzs,
       appId: props.appId,
       vpc,igw,
+      httpsListener:albStack.httpsListener,
     });
 
     // Output stack variables
