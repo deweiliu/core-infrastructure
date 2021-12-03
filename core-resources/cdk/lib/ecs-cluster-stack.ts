@@ -3,6 +3,7 @@ import * as route53 from '@aws-cdk/aws-route53';
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ec2 from '@aws-cdk/aws-ec2';
+import * as iam from '@aws-cdk/aws-iam';
 import * as  autoscaling from '@aws-cdk/aws-autoscaling';
 import { ISecurityGroup, ISubnet, PublicSubnet } from '@aws-cdk/aws-ec2';
 
@@ -47,15 +48,25 @@ export class EcsClusterStack extends cdk.NestedStack {
         });
 
         const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc, clusterName: 'CoreCluster' });
+
+
+        const ec2Role = new iam.Role(this, 'EC2Role', {
+            assumedBy: new iam.ServicePrincipal('ec2.amazonaws.com'),
+            managedPolicies: [iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerServiceforEC2Role')],
+            description: 'https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html',
+        });
         const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
             maxCapacity: 2,
-            vpc: props.vpc, //new ec2.Vpc(this, 'Vpc', { maxAzs: 2 }),
+            vpc: props.vpc, 
             vpcSubnets: { subnets },
             newInstancesProtectedFromScaleIn: false,
+            role: ec2Role,
         });
+
+
         const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', { autoScalingGroup: asg });
         cluster.addAsgCapacityProvider(capacityProvider);
 
