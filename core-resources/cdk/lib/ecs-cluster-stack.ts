@@ -112,11 +112,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             conditions: [elb.ListenerCondition.hostHeaders(['test.dliu.com'])],
         });
 
-        const certificate = new acm.Certificate(this, 'SSLCertificate', {
-            domainName: 'test.dliu.com',
-            validation: acm.CertificateValidation.fromDns(props.hostedZone),
-        });
-        props.httpsListener.addCertificates('TestCertificate', [certificate]);
+
 
 
         const record = new route53.CnameRecord(this, "CnameRecord", {
