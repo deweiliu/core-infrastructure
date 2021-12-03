@@ -1,9 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as route53 from '@aws-cdk/aws-route53';
 import { LoadBalancingStack } from './load-balancing-stack';
-import { EcsClusterStack } from './ecs-cluster-stack';
-
 import { Vpc } from '@aws-cdk/aws-ec2';
+import { EcsClusterStack } from './ecs-cluster-stack';
 export interface CdkStackProps extends cdk.StackProps {
   maxAzs: number;
   appId: number;
@@ -25,12 +24,6 @@ export class CdkStack extends cdk.Stack {
       zoneName: 'dliu.com',
     });
 
-    const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
-      maxAzs: props.maxAzs,
-      appId: props.appId,
-      vpc,
-    });
-
     // Create nested stacks
     const albStack = new LoadBalancingStack(this, 'LoadBalancing', {
       vpc,
@@ -41,6 +34,12 @@ export class CdkStack extends cdk.Stack {
     });
 
     // TODO Create NAT instance/gateway
+
+    const ecsStack = new EcsClusterStack(this, 'EcsCluster', {
+      maxAzs: props.maxAzs,
+      appId: props.appId,
+      vpc,
+    });
 
     // Output stack variables
     new cdk.CfnOutput(this, 'Alb', {
