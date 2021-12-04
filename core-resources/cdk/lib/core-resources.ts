@@ -5,6 +5,7 @@ import { Vpc } from '@aws-cdk/aws-ec2';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import { EcsClusterStack } from './ecs-cluster-stack';
 import { Tags } from '@aws-cdk/core';
+import { ExportValues } from './export-values';
 export interface CdkStackProps extends cdk.StackProps {
   maxAzs: number;
   appId: number;
@@ -28,13 +29,7 @@ export class CdkStack extends cdk.Stack {
     });
 
     // Create nested stacks
-    const albStack = new LoadBalancingStack(this, 'LoadBalancing', {
-      vpc,
-      igw,
-      hostedZone,
-      maxAzs: props.maxAzs,
-      appId: props.appId,
-    });
+    const albStack = new LoadBalancingStack(this, 'LoadBalancing', { vpc, igw, hostedZone, maxAzs: props.maxAzs, appId: props.appId, });
 
     // TODO Create NAT instance/gateway
 
@@ -48,39 +43,13 @@ export class CdkStack extends cdk.Stack {
       loadBalancerDnsName: albStack.loadBalancer.loadBalancerDnsName
     });
 
-    // const certificate = new acm.Certificate(this, 'SSLCertificate', {
-    //   domainName: 'test.dliu.com',
-    //   validation: acm.CertificateValidation.fromDns(hostedZone),
-    // });
+    const certificate = new acm.Certificate(this, 'SSLCertificate', {
+      domainName: 'test.dliu.com',
+      validation: acm.CertificateValidation.fromDns(hostedZone),
+    });
     // albStack.httpsListener.addCertificates('TestCertificate', [certificate]);
-    // Output stack variables
-    new cdk.CfnOutput(this, 'Alb', {
-      value: albStack.loadBalancer.loadBalancerArn,
-      description: "The Application Load Balancer ARN",
-      exportName: 'Core-Alb',
-    });
-    new cdk.CfnOutput(this, 'AlbListener', {
-      value: albStack.httpsListener.listenerArn,
-      description: "The ARN of the HTTPS port 443 listener on the core Application Load Balancer",
-      exportName: 'Core-AlbListener',
-    });
 
-    new cdk.CfnOutput(this, 'AlbSecurityGroup', {
-      value: albStack.albSecurityGroup.securityGroupId,
-      description: "The security group for the core Application Load Balancer",
-      exportName: 'Core-AlbSecurityGroup',
-    });
+    new ExportValues(this, { albStack, ecsStack });
 
-    new cdk.CfnOutput(this, 'AlbCanonicalHostedZone', {
-      value: albStack.loadBalancer.loadBalancerCanonicalHostedZoneId,
-      description: "The Application Load Balancer Canonical Hosted Zone ID",
-      exportName: 'Core-AlbCanonicalHostedZone',
-    });
-
-    new cdk.CfnOutput(this, 'AlbDns', {
-      value: albStack.loadBalancer.loadBalancerDnsName,
-      description: "The Application Load Balancer Canonical Hosted Zone ID",
-      exportName: 'Core-AlbDns',
-    });
   }
 }

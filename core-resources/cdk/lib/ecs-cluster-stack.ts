@@ -55,9 +55,6 @@ export class EcsClusterStack extends cdk.NestedStack {
             publicSubnetIds: subnets.map(subnet => subnet.subnetId)
         });
 
-
-
-
         const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc, clusterName: 'CoreCluster' });
 
 
@@ -66,7 +63,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             managedPolicies: [iam.ManagedPolicy.fromManagedPolicyArn(this, 'EC2ContainerServicePolicy', 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role')],
             description: 'https://docs.aws.amazon.com/AmazonECS/latest/developerguide/instance_IAM_role.html',
         });
-        const asg = new autoscaling.AutoScalingGroup(this, 'MyFleet', {
+        const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
@@ -99,11 +96,29 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc, });
         securityGroup.connections.allowFrom(props.albSecurityGroup, ec2.Port.tcp(80), 'Allow traffic from ELB');
+
+        const serviceSubnets: ISubnet[] = [];
+
+        [...Array(props.maxAzs).keys()].forEach(azIndex => {
+            const subnet = new PublicSubnet(this, `ServiceSubnet` + azIndex, {
+                vpcId: props.vpc.vpcId,
+                availabilityZone: cdk.Stack.of(this).availabilityZones[azIndex],
+                cidrBlock: `10.0.11.${azIndex * 16}/28`,
+                mapPublicIpOnLaunch: true,
+            });
+            new ec2.CfnRoute(this, 'ServicePublicRouting' + azIndex, {
+                destinationCidrBlock: '0.0.0.0/0',
+                routeTableId: subnet.routeTable.routeTableId,
+                gatewayId: props.igw,
+            });
+            serviceSubnets.push(subnet);
+        });
+
         const service = new ecs.Ec2Service(this, 'Service', {
             cluster,
             taskDefinition,
             securityGroups: [securityGroup],
-            vpcSubnets: { subnets },
+            vpcSubnets: { subnets: serviceSubnets },
         });
 
         const albTargetGroup = new elb.ApplicationTargetGroup(this, 'TargetGroup', {
