@@ -104,7 +104,6 @@ export class EcsClusterStack extends cdk.NestedStack {
             taskDefinition,
             securityGroups: [securityGroup],
             vpcSubnets: { subnets },
-            assignPublicIp: true,
         });
 
         const albTargetGroup = new elb.ApplicationTargetGroup(this, 'TargetGroup', {
