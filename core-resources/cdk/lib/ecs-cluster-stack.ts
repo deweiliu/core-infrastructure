@@ -5,7 +5,7 @@ import * as ecs from '@aws-cdk/aws-ecs';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as  autoscaling from '@aws-cdk/aws-autoscaling';
-import { ISecurityGroup, ISubnet, PublicSubnet } from '@aws-cdk/aws-ec2';
+import { ISecurityGroup, ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 
 
 import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
@@ -37,6 +37,7 @@ export class EcsClusterStack extends cdk.NestedStack {
                 vpcId: props.vpc.vpcId,
                 availabilityZone: cdk.Stack.of(this).availabilityZones[azIndex],
                 cidrBlock: `10.0.10.${azIndex * 16}/28`,
+                mapPublicIpOnLaunch: true,
             });
             new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
                 destinationCidrBlock: '0.0.0.0/0',
@@ -45,6 +46,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             });
             subnets.push(subnet);
         });
+
 
         const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc, clusterName: 'CoreCluster' });
 
@@ -63,8 +65,9 @@ export class EcsClusterStack extends cdk.NestedStack {
             vpcSubnets: { subnets },
             newInstancesProtectedFromScaleIn: false,
             role: ec2Role,
+            // associatePublicIpAddress: true,
         });
-
+        // TODO: because public IP address cannot be set to true, we need to configure a NAT instance/gateway
 
         const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', {
             autoScalingGroup: asg,
@@ -91,6 +94,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             taskDefinition,
             securityGroups: [securityGroup],
             vpcSubnets: { subnets },
+            assignPublicIp: true,
         });
 
         const albTargetGroup = new elb.ApplicationTargetGroup(this, 'TargetGroup', {
