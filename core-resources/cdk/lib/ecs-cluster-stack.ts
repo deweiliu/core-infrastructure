@@ -1,4 +1,5 @@
 import * as route53 from '@aws-cdk/aws-route53';
+import { Vpc } from '@aws-cdk/aws-ec2';
 
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
@@ -48,7 +49,16 @@ export class EcsClusterStack extends cdk.NestedStack {
         });
 
 
-        const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc: props.vpc, clusterName: 'CoreCluster' });
+        const vpc = Vpc.fromVpcAttributes(this, 'CoreVpc', {
+            vpcId: props.vpc.vpcId,
+            availabilityZones: props.vpc.availabilityZones,
+            publicSubnetIds: subnets.map(subnet => subnet.subnetId)
+        });
+
+
+
+
+        const cluster = new ecs.Cluster(this, 'CoreCluster', { vpc, clusterName: 'CoreCluster' });
 
 
         const ec2Role = new iam.Role(this, 'EC2Role', {
@@ -61,11 +71,11 @@ export class EcsClusterStack extends cdk.NestedStack {
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
             maxCapacity: 2,
-            vpc: props.vpc,
-            vpcSubnets: { subnets },
+            vpc,
+            vpcSubnets: { subnetType: SubnetType.PUBLIC },
             newInstancesProtectedFromScaleIn: false,
             role: ec2Role,
-            // associatePublicIpAddress: true,
+            associatePublicIpAddress: true,
         });
         // TODO: because public IP address cannot be set to true, we need to configure a NAT instance/gateway
 
@@ -87,7 +97,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             logging: new ecs.AwsLogDriver({ streamPrefix: "home-site" }),
         });
 
-        const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc: props.vpc, });
+        const securityGroup = new ec2.SecurityGroup(this, 'ServiceSecurityGroup', { vpc, });
         securityGroup.connections.allowFrom(props.albSecurityGroup, ec2.Port.tcp(80), 'Allow traffic from ELB');
         const service = new ecs.Ec2Service(this, 'Service', {
             cluster,
@@ -101,7 +111,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             port: 80,
             protocol: elb.ApplicationProtocol.HTTP,
             healthCheck: { enabled: true },
-            vpc: props.vpc,
+            vpc,
             targetType: elb.TargetType.IP,
             targets: [service.loadBalancerTarget({ containerName, containerPort: 80, protocol: Protocol.TCP })],
             // targets:[service],
