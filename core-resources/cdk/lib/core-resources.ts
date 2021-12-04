@@ -4,6 +4,7 @@ import { LoadBalancingStack } from './load-balancing-stack';
 import { Vpc } from '@aws-cdk/aws-ec2';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import { EcsClusterStack } from './ecs-cluster-stack';
+import { Tags } from '@aws-cdk/core';
 export interface CdkStackProps extends cdk.StackProps {
   maxAzs: number;
   appId: number;
@@ -12,6 +13,7 @@ export interface CdkStackProps extends cdk.StackProps {
 export class CdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
+    Tags.of(this).add('service', 'core-infrastructure');
 
     const vpc = Vpc.fromVpcAttributes(this, 'CoreVpc', {
       vpcId: cdk.Fn.importValue('Core-Vpc'),
