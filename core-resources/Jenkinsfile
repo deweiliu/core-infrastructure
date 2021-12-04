@@ -26,5 +26,10 @@ pipeline {
                 dir('core-resources/cdk'){ sh 'npm run cdk-deploy'}
             }
         }
+    }    
+    post { 
+        always { 
+            cleanWs()
+        }
     }
 }
