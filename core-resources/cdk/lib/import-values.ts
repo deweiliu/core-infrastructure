@@ -3,7 +3,7 @@ import * as cdk from '@aws-cdk/core';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import { Fn } from '@aws-cdk/core';
-import { CdkStackProps } from './core-resources';
+import { CdkStackProps } from './main-stack';
 
 export class ImportValues extends cdk.Construct {
     public hostedZone: route53.IHostedZone;
