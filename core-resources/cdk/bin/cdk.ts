@@ -7,6 +7,7 @@ const app = new cdk.App();
 new CdkStack(app, 'CoreResources', {
   maxAzs: 2,
   appId: 1,
+  tags: { service: 'core-infrastructure' },
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

@@ -38,5 +38,18 @@ export class ExportValues {
             description: "The Application Load Balancer Canonical Hosted Zone ID",
             exportName: 'Core-AlbDns',
         });
+
+        new CfnOutput(scope, 'Cluster', {
+            value: props.ecsStack.cluster.clusterName,
+            description: "Core Cluster Name",
+            exportName: 'Core-ClusterName',
+        });
+
+        new CfnOutput(scope, 'ClusterSecurityGroup', {
+            value: props.ecsStack.clusterSecurityGroup.securityGroupId,
+            description: "The security groups associated with the container instances registered to the core cluster",
+            exportName: 'Core-ClusterSecurityGroup',
+        });
+
     }
 }
