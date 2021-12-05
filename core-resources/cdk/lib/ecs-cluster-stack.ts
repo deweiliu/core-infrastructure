@@ -54,7 +54,7 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
 
-        const asg1 = new autoscaling.AutoScalingGroup(this, 'CoreASG', {
+        const asg1 = new autoscaling.AutoScalingGroup(this, 'CoreASG1', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             desiredCapacity: 1,
@@ -67,7 +67,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             securityGroup: this.clusterSecurityGroup,
         });
 
-        const capacityProvider1 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', {
+        const capacityProvider1 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider1', {
             autoScalingGroup: asg1,
             enableManagedTerminationProtection: false,
         });
