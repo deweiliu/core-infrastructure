@@ -23,7 +23,7 @@ pipeline {
        
         stage('CDK Deploy'){
             steps{
-                dir('core-resources/cdk'){ sh 'npm run cdk-deploy'}
+                dir('core-resources/cdk'){ sh 'npm run deploy'}
             }
         }
     }    
