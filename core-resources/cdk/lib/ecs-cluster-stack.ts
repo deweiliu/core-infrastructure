@@ -1,20 +1,12 @@
-import * as route53 from '@aws-cdk/aws-route53';
 import { Vpc } from '@aws-cdk/aws-ec2';
-
 import * as cdk from '@aws-cdk/core';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as  autoscaling from '@aws-cdk/aws-autoscaling';
-import { ISecurityGroup, ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
-
-
-import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
+import {  ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 import { IVpc } from '@aws-cdk/aws-ec2';
-import { NetworkMode, Protocol } from '@aws-cdk/aws-ecs';
 import { IHostedZone } from '@aws-cdk/aws-route53';
-import { Duration } from '@aws-cdk/core';
-import { LoadBalancingStack } from './load-balancing-stack';
 
 export interface EcsClusterStackProps extends cdk.NestedStackProps {
     maxAzs: number;
