@@ -58,8 +58,8 @@ export class LoadBalancingStack extends cdk.NestedStack {
             targetPort: 443, targetProtocol: elb.ApplicationProtocol.HTTPS,
         });
 
-        const certificate = new acm.Certificate(this, 'DefaultCertificate', {
-            domainName: props.hostedZone.zoneName,
+        const certificate = new acm.Certificate(this, 'DefaultSSL', {
+            domainName: `*.${props.hostedZone.zoneName}`,
             validation: acm.CertificateValidation.fromDns(props.hostedZone),
         });
 
