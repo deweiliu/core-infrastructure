@@ -57,7 +57,7 @@ export class EcsClusterStack extends cdk.NestedStack {
         const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
-            desiredCapacity: 2,
+            desiredCapacity: 1,
             maxCapacity: 2,
             vpc,
             vpcSubnets: { subnetType: SubnetType.PUBLIC },
