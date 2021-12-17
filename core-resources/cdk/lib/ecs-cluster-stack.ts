@@ -20,6 +20,8 @@ export interface EcsClusterStackProps extends cdk.NestedStackProps {
 export class EcsClusterStack extends cdk.NestedStack {
     public cluster: ecs.Cluster;
     public clusterSecurityGroup: ec2.ISecurityGroup;
+    public capacityProvider1: ecs.AsgCapacityProvider;
+    public capacityProvider2: ecs.AsgCapacityProvider;
     constructor(scope: cdk.Construct, id: string, props: EcsClusterStackProps) {
         super(scope, id);
 
@@ -70,11 +72,11 @@ export class EcsClusterStack extends cdk.NestedStack {
             securityGroup: this.clusterSecurityGroup,
         });
 
-        const capacityProvider1 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider1', {
+        this.capacityProvider1 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider1', {
             autoScalingGroup: asg1,
             enableManagedTerminationProtection: false,
         });
-        this.cluster.addAsgCapacityProvider(capacityProvider1);
+        this.cluster.addAsgCapacityProvider(this.capacityProvider1);
 
         const asg2 = new autoscaling.AutoScalingGroup(this, 'CoreASG2', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MICRO),
@@ -91,10 +93,10 @@ export class EcsClusterStack extends cdk.NestedStack {
             securityGroup: this.clusterSecurityGroup,
         });
 
-        const capacityProvider2 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider2', {
+        this.capacityProvider2 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider2', {
             autoScalingGroup: asg2,
             enableManagedTerminationProtection: false,
         });
-        this.cluster.addAsgCapacityProvider(capacityProvider2);
+        this.cluster.addAsgCapacityProvider(this.capacityProvider2);
     }
 }
