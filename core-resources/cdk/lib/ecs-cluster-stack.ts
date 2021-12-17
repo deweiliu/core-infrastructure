@@ -4,9 +4,10 @@ import * as ecs from '@aws-cdk/aws-ecs';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as  autoscaling from '@aws-cdk/aws-autoscaling';
-import {  ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
+import { ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
 import { IVpc } from '@aws-cdk/aws-ec2';
 import { IHostedZone } from '@aws-cdk/aws-route53';
+import { Duration } from '@aws-cdk/core';
 
 export interface EcsClusterStackProps extends cdk.NestedStackProps {
     maxAzs: number;
@@ -54,10 +55,12 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
 
-        const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG', {
+        const asg1 = new autoscaling.AutoScalingGroup(this, 'CoreASG1', {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
-            desiredCapacity: 2,
+            keyName: 'ecs-instance',
+            maxInstanceLifetime: Duration.days(30),
+            desiredCapacity: 1,
             maxCapacity: 2,
             vpc,
             vpcSubnets: { subnetType: SubnetType.PUBLIC },
@@ -67,10 +70,31 @@ export class EcsClusterStack extends cdk.NestedStack {
             securityGroup: this.clusterSecurityGroup,
         });
 
-        const capacityProvider = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider', {
-            autoScalingGroup: asg,
+        const capacityProvider1 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider1', {
+            autoScalingGroup: asg1,
             enableManagedTerminationProtection: false,
         });
-        this.cluster.addAsgCapacityProvider(capacityProvider);
+        this.cluster.addAsgCapacityProvider(capacityProvider1);
+
+        const asg2 = new autoscaling.AutoScalingGroup(this, 'CoreASG2', {
+            instanceType: ec2.InstanceType.of(ec2.InstanceClass.T4G, ec2.InstanceSize.MICRO),
+            machineImage: ecs.EcsOptimizedImage.amazonLinux2(ecs.AmiHardwareType.ARM),
+            keyName: 'ecs-instance',
+            maxInstanceLifetime: Duration.days(30),
+            desiredCapacity: 1,
+            maxCapacity: 2,
+            vpc,
+            vpcSubnets: { subnetType: SubnetType.PUBLIC },
+            newInstancesProtectedFromScaleIn: false,
+            role: ec2Role,
+            associatePublicIpAddress: true,
+            securityGroup: this.clusterSecurityGroup,
+        });
+
+        const capacityProvider2 = new ecs.AsgCapacityProvider(this, 'AsgCapacityProvider2', {
+            autoScalingGroup: asg2,
+            enableManagedTerminationProtection: false,
+        });
+        this.cluster.addAsgCapacityProvider(capacityProvider2);
     }
 }
