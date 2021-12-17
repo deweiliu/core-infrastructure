@@ -51,17 +51,5 @@ export class ExportValues {
             exportName: 'Core-ClusterSecurityGroup',
         });
 
-        new CfnOutput(scope, 'ClusterCapacityProviderT2', {
-            value: props.ecsStack.capacityProvider1.capacityProviderName,
-            description: "The autoscalling group capacity provider of type T2 micro for the core cluster",
-            exportName: 'Core-ClusterCapacityProviderT2',
-        });
-
-        new CfnOutput(scope, 'ClusterCapacityProviderT4g', {
-            value: props.ecsStack.capacityProvider1.capacityProviderName,
-            description: "The autoscalling group capacity provider of type T4g micro for the core cluster",
-            exportName: 'Core-ClusterCapacityProviderT4g',
-        });
-
     }
 }
