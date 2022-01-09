@@ -58,7 +58,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.MICRO),
             machineImage: ecs.EcsOptimizedImage.amazonLinux2(),
             keyName: 'ecs-instance',
-            maxInstanceLifetime: cdk.Duration.days(30),
+            maxInstanceLifetime: cdk.Duration.days(14),
             desiredCapacity: 1,
             maxCapacity: 2,
             vpc,
