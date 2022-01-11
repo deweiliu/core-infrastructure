@@ -62,7 +62,7 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         asgConfigs.forEach((config, index) => {
 
-            const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG', {
+            const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG' + index, {
                 instanceType: ec2.InstanceType.of(config.instance, ec2.InstanceSize.MICRO),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
