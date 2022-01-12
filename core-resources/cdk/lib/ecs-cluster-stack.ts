@@ -73,10 +73,17 @@ export class EcsClusterStack extends cdk.NestedStack {
             },
             {
                 instance: ec2.InstanceClass.T4G,
+                size: ec2.InstanceSize.MICRO,
+                hardwareType: ecs.AmiHardwareType.ARM,
+                minCapacity: 1,
+                maxCapacity: 1,
+            },
+            {
+                instance: ec2.InstanceClass.T4G,
                 size: ec2.InstanceSize.NANO,
                 hardwareType: ecs.AmiHardwareType.ARM,
-                minCapacity: 2,
-                maxCapacity: 3,
+                minCapacity: 1,
+                maxCapacity: 2,
             },
         ];
 
@@ -86,7 +93,7 @@ export class EcsClusterStack extends cdk.NestedStack {
                 instanceType: ec2.InstanceType.of(config.instance, config.size),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
-                maxInstanceLifetime: cdk.Duration.days(14),
+                maxInstanceLifetime: cdk.Duration.days(7),
                 minCapacity: config.minCapacity,
                 maxCapacity: config.maxCapacity,
                 vpc,
