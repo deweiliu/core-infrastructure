@@ -56,14 +56,14 @@ export class EcsClusterStack extends cdk.NestedStack {
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
 
         const asgConfigs = [
-            { instance: ec2.InstanceClass.T2, hardwareType: ecs.AmiHardwareType.STANDARD },
-            { instance: ec2.InstanceClass.T4G, hardwareType: ecs.AmiHardwareType.ARM },
+            { instance: ec2.InstanceClass.T2, size: ec2.InstanceSize.MICRO, hardwareType: ecs.AmiHardwareType.STANDARD },
+            { instance: ec2.InstanceClass.T4G, size: ec2.InstanceSize.NANO, hardwareType: ecs.AmiHardwareType.ARM },
         ];
 
         asgConfigs.forEach((config, index) => {
 
             const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG' + index, {
-                instanceType: ec2.InstanceType.of(config.instance, ec2.InstanceSize.MICRO),
+                instanceType: ec2.InstanceType.of(config.instance, config.size),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
                 maxInstanceLifetime: cdk.Duration.days(14),
