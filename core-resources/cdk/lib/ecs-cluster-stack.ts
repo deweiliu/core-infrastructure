@@ -14,6 +14,14 @@ export interface EcsClusterStackProps extends cdk.NestedStackProps {
     hostedZone: IHostedZone;
 }
 
+interface AwsConfig {
+    instance: ec2.InstanceClass;
+    size: ec2.InstanceSize;
+    hardwareType: ecs.AmiHardwareType;
+    minCapacity?: number;
+    maxCapacity?: number;
+}
+
 export class EcsClusterStack extends cdk.NestedStack {
     public cluster: ecs.Cluster;
     public clusterSecurityGroup: ec2.ISecurityGroup;
@@ -55,9 +63,21 @@ export class EcsClusterStack extends cdk.NestedStack {
 
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
 
-        const asgConfigs = [
-            { instance: ec2.InstanceClass.T2, size: ec2.InstanceSize.MICRO, hardwareType: ecs.AmiHardwareType.STANDARD },
-            { instance: ec2.InstanceClass.T4G, size: ec2.InstanceSize.NANO, hardwareType: ecs.AmiHardwareType.ARM },
+        const asgConfigs: AwsConfig[] = [
+            {
+                instance: ec2.InstanceClass.T2,
+                size: ec2.InstanceSize.MICRO,
+                hardwareType: ecs.AmiHardwareType.STANDARD,
+                minCapacity: 1,
+                maxCapacity: 1,
+            },
+            {
+                instance: ec2.InstanceClass.T4G,
+                size: ec2.InstanceSize.NANO,
+                hardwareType: ecs.AmiHardwareType.ARM,
+                minCapacity: 2,
+                maxCapacity: 3,
+            },
         ];
 
         asgConfigs.forEach((config, index) => {
@@ -67,8 +87,8 @@ export class EcsClusterStack extends cdk.NestedStack {
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
                 maxInstanceLifetime: cdk.Duration.days(14),
-                desiredCapacity: 1,
-                maxCapacity: 2,
+                minCapacity: config.minCapacity,
+                maxCapacity: config.maxCapacity,
                 vpc,
                 vpcSubnets: { subnetType: SubnetType.PUBLIC },
                 newInstancesProtectedFromScaleIn: false,
