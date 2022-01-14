@@ -71,13 +71,13 @@ export class EcsClusterStack extends cdk.NestedStack {
                 minCapacity: 1,
                 maxCapacity: 1,
             },
-            {
-                instance: ec2.InstanceClass.T4G,
-                size: ec2.InstanceSize.MICRO,
-                hardwareType: ecs.AmiHardwareType.ARM,
-                minCapacity: 1,
-                maxCapacity: 1,
-            },
+            // {
+            //     instance: ec2.InstanceClass.T4G,
+            //     size: ec2.InstanceSize.MICRO,
+            //     hardwareType: ecs.AmiHardwareType.ARM,
+            //     minCapacity: 1,
+            //     maxCapacity: 1,
+            // },
             {
                 instance: ec2.InstanceClass.T4G,
                 size: ec2.InstanceSize.NANO,

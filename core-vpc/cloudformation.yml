@@ -1,6 +1,24 @@
 ---
 Description: DO NOT DELETE STACK! Core VPC that all resources are based on
+Parameters:
+  MySqlUsername:
+    NoEcho: "true"
+    Description: Username for PostgreSQL database access
+    Type: String
+    MinLength: "1"
+    MaxLength: "16"
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+  MySqlPassword:
+    NoEcho: "true"
+    Description: Password for PostgreSQL database access
+    Type: String
+    MinLength: "8"
+    MaxLength: "41"
+    ConstraintDescription: must contain only alphanumeric characters.
+
 Resources:
+  # Core VPC
   Vpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -10,7 +28,7 @@ Resources:
       InstanceTenancy: default
       Tags:
         - Key: Name
-          Value: core-vpc      
+          Value: core-vpc
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -24,6 +42,56 @@ Resources:
     Properties:
       VpcId: !Ref Vpc
       InternetGatewayId: !Ref InternetGateway
+
+  # Core MySQL
+  MySql:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      VPCSecurityGroups:
+        - !Ref MySqlSecurityGroup
+      DBInstanceIdentifier: core-mysql
+      AllocatedStorage: "20"
+      DBInstanceClass: db.t2.micro
+      Engine: mysql
+      MasterUsername: !Ref MySqlUsername
+      MasterUserPassword: !Ref MySqlPassword
+      AutoMinorVersionUpgrade: true
+      DBSubnetGroupName: core-mysql-subnet-group
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+
+  MySqlSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: core-mysql-security-group
+      GroupDescription: Core MySQL Database Security Group
+      VpcId: !ImportValue Core-Vpc
+
+  MySqlSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Core MySQL Subnet Group
+      DBSubnetGroupName: core-mysql-subnet-group
+      SubnetIds:
+        - !Ref MySqlSubnet1
+        - !Ref MySqlSubnet2
+  MySqlSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue Core-Vpc
+      CidrBlock: 10.0.1.0/28
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
+      Tags: [{ Key: Name, Value: CoreResources/MySql/Subnet0 }]
+
+  MySqlSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue Core-Vpc
+      CidrBlock: 10.0.1.16/28
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: !Select [1, !GetAZs { Ref: "AWS::Region" }]
+      Tags: [{ Key: Name, Value: CoreResources/MySql/Subnet1 }]
 
 Outputs:
   Vpc:

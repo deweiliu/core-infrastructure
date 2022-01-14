@@ -27,7 +27,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
             const subnet = new PublicSubnet(this, `AlbSubnet${azIndex}`, {
                 vpcId: props.vpc.vpcId,
                 availabilityZone: props.vpc.availabilityZones[azIndex],
-                cidrBlock: `10.0.${props.appId}.${azIndex * 16}/28`,
+                cidrBlock: `10.0.${props.appId}.${(azIndex + 2) * 16}/28`,
                 mapPublicIpOnLaunch: true,
             });
             new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
