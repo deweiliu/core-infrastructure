@@ -11,12 +11,8 @@
     "synth": "cdk synth"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "1.134.0",
-    "@types/jest": "^26.0.10",
-    "@types/node": "10.17.27",
     "@typescript-eslint/eslint-plugin": "^5.5.0",
     "@typescript-eslint/parser": "^5.5.0",
-    "aws-cdk": "1.134.0",
     "eslint": "^8.3.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
@@ -26,13 +22,8 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-autoscaling": "1.134.0",
-    "@aws-cdk/aws-certificatemanager": "1.134.0",
-    "@aws-cdk/aws-ec2": "1.134.0",
-    "@aws-cdk/aws-ecs": "1.134.0",
-    "@aws-cdk/aws-elasticloadbalancingv2": "1.134.0",
-    "@aws-cdk/aws-route53": "1.134.0",
-    "@aws-cdk/core": "1.134.0",
-    "source-map-support": "^0.5.16"
+    "aws-cdk": "^2.8.0",
+    "aws-cdk-lib": "^2.8.0",
+    "constructs": "^10.0.35"
   }
 }

@@ -1,12 +1,13 @@
-import * as cdk from '@aws-cdk/core';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as acm from '@aws-cdk/aws-certificatemanager';
-import * as elb from '@aws-cdk/aws-elasticloadbalancingv2';
-import * as route53 from '@aws-cdk/aws-route53';
-import { PublicSubnet, Subnet } from '@aws-cdk/aws-ec2';
-import { ListenerAction } from '@aws-cdk/aws-elasticloadbalancingv2';
+import { Construct } from 'constructs';
+import {
+    NestedStackProps, NestedStack,
+    aws_ec2 as ec2,
+    aws_route53 as route53,
+    aws_elasticloadbalancingv2 as elb,
+    aws_certificatemanager as acm,
+} from 'aws-cdk-lib';
 
-export interface LoadBalancingStackProps extends cdk.NestedStackProps {
+export interface LoadBalancingStackProps extends NestedStackProps {
     vpc: ec2.IVpc;
     igwId: string,
     hostedZone: route53.IHostedZone;
@@ -14,17 +15,17 @@ export interface LoadBalancingStackProps extends cdk.NestedStackProps {
     appId: number;
 }
 
-export class LoadBalancingStack extends cdk.NestedStack {
+export class LoadBalancingStack extends NestedStack {
     public loadBalancer: elb.ApplicationLoadBalancer;
 
     public albSecurityGroup: ec2.ISecurityGroup;
     public httpsListener: elb.ApplicationListener;
-    constructor(scope: cdk.Construct, id: string, props: LoadBalancingStackProps) {
+    constructor(scope: Construct, id: string, props: LoadBalancingStackProps) {
         super(scope, id);
 
-        const subnets: Subnet[] = [];
+        const subnets: ec2.Subnet[] = [];
         [...Array(props.maxAzs).keys()].forEach(azIndex => {
-            const subnet = new PublicSubnet(this, `AlbSubnet${azIndex}`, {
+            const subnet = new ec2.PublicSubnet(this, `AlbSubnet${azIndex}`, {
                 vpcId: props.vpc.vpcId,
                 availabilityZone: props.vpc.availabilityZones[azIndex],
                 cidrBlock: `10.0.${props.appId}.${(azIndex + 2) * 16}/28`,
@@ -66,7 +67,7 @@ export class LoadBalancingStack extends cdk.NestedStack {
         this.httpsListener = this.loadBalancer.addListener('HttpsListner', {
             port: 443,
             protocol: elb.ApplicationProtocol.HTTPS,
-            defaultAction: ListenerAction.redirect({ host: 'dliu.com', permanent: true }),
+            defaultAction: elb.ListenerAction.redirect({ host: 'dliu.com', permanent: true }),
             certificates: [certificate],
         });
     }

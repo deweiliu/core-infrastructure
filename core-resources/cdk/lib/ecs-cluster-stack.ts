@@ -1,17 +1,22 @@
-import * as cdk from '@aws-cdk/core';
-import * as ecs from '@aws-cdk/aws-ecs';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import * as iam from '@aws-cdk/aws-iam';
-import * as  autoscaling from '@aws-cdk/aws-autoscaling';
-import { ISubnet, PublicSubnet, SubnetType } from '@aws-cdk/aws-ec2';
-import { IHostedZone } from '@aws-cdk/aws-route53';
+import { Construct } from 'constructs';
+import {
+    aws_ecs as ecs,
+    aws_ec2 as ec2,
+    aws_iam as iam,
+    aws_autoscaling as autoscaling,
+    aws_route53 as route53,
+    Stack,
+    NestedStack,
+    NestedStackProps,
+    Duration,
+} from 'aws-cdk-lib';
 
-export interface EcsClusterStackProps extends cdk.NestedStackProps {
+export interface EcsClusterStackProps extends NestedStackProps {
     maxAzs: number;
     appId: number;
     vpc: ec2.IVpc;
     igwId: string;
-    hostedZone: IHostedZone;
+    hostedZone: route53.IHostedZone;
 }
 
 interface AwsConfig {
@@ -22,21 +27,21 @@ interface AwsConfig {
     maxCapacity?: number;
 }
 
-export class EcsClusterStack extends cdk.NestedStack {
+export class EcsClusterStack extends NestedStack {
     public cluster: ecs.Cluster;
     public clusterSecurityGroup: ec2.ISecurityGroup;
     public capacityProvider1: ecs.AsgCapacityProvider;
     public capacityProvider2: ecs.AsgCapacityProvider;
 
-    constructor(scope: cdk.Construct, id: string, props: EcsClusterStackProps) {
+    constructor(scope: Construct, id: string, props: EcsClusterStackProps) {
         super(scope, id);
 
-        const subnets: ISubnet[] = [];
+        const subnets: ec2.ISubnet[] = [];
 
         [...Array(props.maxAzs).keys()].forEach(azIndex => {
-            const subnet = new PublicSubnet(this, `Subnet` + azIndex, {
+            const subnet = new ec2.PublicSubnet(this, `Subnet` + azIndex, {
                 vpcId: props.vpc.vpcId,
-                availabilityZone: cdk.Stack.of(this).availabilityZones[azIndex],
+                availabilityZone: Stack.of(this).availabilityZones[azIndex],
                 cidrBlock: `10.0.${props.appId}.${(azIndex + 4) * 16}/28`,
                 mapPublicIpOnLaunch: true,
             });
@@ -95,11 +100,11 @@ export class EcsClusterStack extends cdk.NestedStack {
                 instanceType: ec2.InstanceType.of(config.instance, config.size),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
-                maxInstanceLifetime: cdk.Duration.days(7),
+                maxInstanceLifetime: Duration.days(7),
                 minCapacity: config.minCapacity,
                 maxCapacity: config.maxCapacity,
                 vpc,
-                vpcSubnets: { subnetType: SubnetType.PUBLIC },
+                vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
                 newInstancesProtectedFromScaleIn: false,
                 role: ec2Role,
                 associatePublicIpAddress: true,

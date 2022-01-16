@@ -1,11 +1,13 @@
-
-import * as cdk from '@aws-cdk/core';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as ec2 from '@aws-cdk/aws-ec2';
-import { Fn } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import {
+    aws_route53 as route53,
+    aws_ec2 as ec2,
+    Fn,
+    Stack,
+} from 'aws-cdk-lib';
 import { CdkStackProps } from './main-stack';
 
-export class ImportValues extends cdk.Construct {
+export class ImportValues extends Construct {
     public hostedZone: route53.IHostedZone;
     public igwId: string;
     public vpc: ec2.IVpc;
@@ -13,7 +15,7 @@ export class ImportValues extends cdk.Construct {
     public maxAzs: number;
     public appId: number;
 
-    constructor(scope: cdk.Construct, props: CdkStackProps) {
+    constructor(scope: Construct, props: CdkStackProps) {
         super(scope, 'ImportValues')
 
         this.maxAzs = props.maxAzs;
@@ -22,7 +24,7 @@ export class ImportValues extends cdk.Construct {
 
         this.vpc = ec2.Vpc.fromVpcAttributes(this, 'CoreVpc', {
             vpcId: Fn.importValue('Core-Vpc'),
-            availabilityZones: cdk.Stack.of(this).availabilityZones,
+            availabilityZones: Stack.of(this).availabilityZones,
         });
 
         this.igwId = Fn.importValue('Core-InternetGateway');

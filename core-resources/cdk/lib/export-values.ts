@@ -1,5 +1,7 @@
 
-import { CfnOutput, Construct } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { CfnOutput } from 'aws-cdk-lib';
+
 import { EcsClusterStack } from './ecs-cluster-stack';
 import { LoadBalancingStack } from './load-balancing-stack';
 export interface ExportValuesProps {
