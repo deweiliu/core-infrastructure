@@ -37,7 +37,7 @@ export class EcsClusterStack extends cdk.NestedStack {
             const subnet = new PublicSubnet(this, `Subnet` + azIndex, {
                 vpcId: props.vpc.vpcId,
                 availabilityZone: cdk.Stack.of(this).availabilityZones[azIndex],
-                cidrBlock: `10.0.10.${azIndex * 16}/28`,
+                cidrBlock: `10.0.${props.appId}.${(azIndex + 4) * 16}/28`,
                 mapPublicIpOnLaunch: true,
             });
             new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
