@@ -40,6 +40,7 @@ export class EcsClusterStack extends cdk.NestedStack {
                 cidrBlock: `10.0.${props.appId}.${(azIndex + 4) * 16}/28`,
                 mapPublicIpOnLaunch: true,
             });
+            subnet.routeTable.routeTableId
             new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
@@ -51,7 +52,8 @@ export class EcsClusterStack extends cdk.NestedStack {
         const vpc = ec2.Vpc.fromVpcAttributes(this, 'CoreVpc', {
             vpcId: props.vpc.vpcId,
             availabilityZones: props.vpc.availabilityZones,
-            publicSubnetIds: subnets.map(subnet => subnet.subnetId)
+            publicSubnetIds: subnets.map(subnet => subnet.subnetId),
+            publicSubnetRouteTableIds: subnets.map(subnet => subnet.routeTable.routeTableId),
         });
 
         this.cluster = new ecs.Cluster(this, 'CoreCluster', { vpc, clusterName: 'CoreCluster' });
