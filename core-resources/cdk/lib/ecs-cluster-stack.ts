@@ -71,17 +71,10 @@ export class EcsClusterStack extends NestedStack {
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
 
         const asgConfigs: AwsConfig[] = [
-            // {
-            //     instance: ec2.InstanceClass.T2,
-            //     size: ec2.InstanceSize.MICRO,
-            //     hardwareType: ecs.AmiHardwareType.STANDARD,
-            //     minCapacity: 1,
-            //     maxCapacity: 1,
-            // },
             {
-                instance: ec2.InstanceClass.T4G,
+                instance: ec2.InstanceClass.T2,
                 size: ec2.InstanceSize.MICRO,
-                hardwareType: ecs.AmiHardwareType.ARM,
+                hardwareType: ecs.AmiHardwareType.STANDARD,
                 minCapacity: 1,
                 maxCapacity: 1,
             },
