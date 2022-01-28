@@ -100,6 +100,13 @@ export class EcsClusterStack extends NestedStack {
                 instanceType: ec2.InstanceType.of(config.instance, config.size),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
                 keyName: 'ecs-instance',
+                blockDevices: [{
+                    deviceName: '/dev/xvda',
+                    volume: autoscaling.BlockDeviceVolume.ebs(
+                        30,
+                        { deleteOnTermination: true, encrypted: true, volumeType: autoscaling.EbsDeviceVolumeType.GP3 }
+                    ),
+                }],
                 maxInstanceLifetime: Duration.days(7),
                 minCapacity: config.minCapacity,
                 maxCapacity: config.maxCapacity,
