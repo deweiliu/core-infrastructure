@@ -17,6 +17,7 @@ export interface EcsClusterStackProps extends NestedStackProps {
     vpc: ec2.IVpc;
     igwId: string;
     hostedZone: route53.IHostedZone;
+    mysqlSecurityGroup: ec2.ISecurityGroup;
 }
 
 interface AwsConfig {
@@ -69,6 +70,7 @@ export class EcsClusterStack extends NestedStack {
         });
 
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
+        props.mysqlSecurityGroup.connections.allowFrom(this.clusterSecurityGroup, ec2.Port.tcp(3306), "Allow traffic from applications to core MySQL");
 
         const asgConfigs: AwsConfig[] = [
             {

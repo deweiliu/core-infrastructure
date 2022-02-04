@@ -27,20 +27,24 @@ Resources:
       VpcId: !Ref Vpc
       InternetGatewayId: !Ref InternetGateway
 
-  # Core MySQL
   MySql:
     Type: AWS::RDS::DBInstance
     Properties:
       VPCSecurityGroups:
         - !Ref MySqlSecurityGroup
       DBInstanceIdentifier: core-mysql
-      AllocatedStorage: "20"
+      AllocatedStorage: "5"
+      StorageType: standard
       DBInstanceClass: db.t2.micro
       Engine: mysql
       MasterUsername: "{{resolve:ssm:/core/mysql/user/master/username}}"
       MasterUserPassword: "{{resolve:ssm-secure:/core/mysql/user/master/password}}"
       AutoMinorVersionUpgrade: true
       DBSubnetGroupName: core-mysql-subnet-group
+      PubliclyAccessible: false
+      BackupRetentionPeriod: 14
+      DeleteAutomatedBackups: false
+      DeletionProtection: true
     DeletionPolicy: Snapshot
     UpdateReplacePolicy: Snapshot
 
@@ -49,7 +53,7 @@ Resources:
     Properties:
       GroupName: core-mysql-security-group
       GroupDescription: Core MySQL Database Security Group
-      VpcId: !ImportValue Core-Vpc
+      VpcId: !Ref Vpc
 
   MySqlSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
@@ -62,7 +66,7 @@ Resources:
   MySqlSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !ImportValue Core-Vpc
+      VpcId: !Ref Vpc
       CidrBlock: 10.0.1.0/28
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select [0, !GetAZs { Ref: "AWS::Region" }]
@@ -71,7 +75,7 @@ Resources:
   MySqlSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !ImportValue Core-Vpc
+      VpcId: !Ref Vpc
       CidrBlock: 10.0.1.16/28
       MapPublicIpOnLaunch: true
       AvailabilityZone: !Select [1, !GetAZs { Ref: "AWS::Region" }]
@@ -87,3 +91,7 @@ Outputs:
     Value: !GetAtt InternetGateway.InternetGatewayId
     Export:
       Name: Core-InternetGateway
+  MySqlSecurityGroup:
+    Value: !GetAtt MySqlSecurityGroup.GroupId
+    Export:
+      Name: Core-MySqlSecurityGroup

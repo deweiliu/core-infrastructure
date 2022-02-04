@@ -11,6 +11,7 @@ export class ImportValues extends Construct {
     public hostedZone: route53.IHostedZone;
     public igwId: string;
     public vpc: ec2.IVpc;
+    public mysqlSecurityGroup: ec2.ISecurityGroup;
 
     public maxAzs: number;
     public appId: number;
@@ -28,6 +29,9 @@ export class ImportValues extends Construct {
         });
 
         this.igwId = Fn.importValue('Core-InternetGateway');
+
+        this.mysqlSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, 'MysqlSecurityGroup',
+            Fn.importValue('Core-MySqlSecurityGroup'));
 
         this.hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
             hostedZoneId: Fn.importValue('DLIUCOMHostedZoneID'),

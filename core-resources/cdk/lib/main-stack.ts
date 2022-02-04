@@ -14,11 +14,11 @@ export class CdkStack extends Stack {
   constructor(scope: Construct, id: string, props: CdkStackProps) {
     super(scope, id, props);
 
-    const { igwId, hostedZone, vpc, maxAzs, appId } = new ImportValues(this, props)
+    const { igwId, hostedZone, vpc, maxAzs, appId, mysqlSecurityGroup } = new ImportValues(this, props)
 
     const albStack = new LoadBalancingStack(this, 'LoadBalancing', { vpc, igwId, hostedZone, maxAzs, appId });
 
-    const ecsStack = new EcsClusterStack(this, 'EcsCluster', { maxAzs, appId, vpc, igwId, hostedZone });
+    const ecsStack = new EcsClusterStack(this, 'EcsCluster', { maxAzs, appId, vpc, igwId, hostedZone, mysqlSecurityGroup });
 
     new ExportValues(this, { albStack, ecsStack });
   }
