@@ -20,7 +20,7 @@ export interface EcsClusterStackProps extends NestedStackProps {
     mysqlSecurityGroup: ec2.ISecurityGroup;
 }
 
-interface AwsConfig {
+interface AsgConfig {
     instance: ec2.InstanceClass;
     size: ec2.InstanceSize;
     hardwareType: ecs.AmiHardwareType;
@@ -72,27 +72,20 @@ export class EcsClusterStack extends NestedStack {
         this.clusterSecurityGroup = new ec2.SecurityGroup(this, 'ClusterSecurityGroup', { vpc, });
         props.mysqlSecurityGroup.connections.allowFrom(this.clusterSecurityGroup, ec2.Port.tcp(3306), "Allow traffic from applications to core MySQL");
 
-        const asgConfigs: AwsConfig[] = [
+        const asgConfigs: AsgConfig[] = [
             {
                 instance: ec2.InstanceClass.T2,
                 size: ec2.InstanceSize.MICRO,
                 hardwareType: ecs.AmiHardwareType.STANDARD,
                 minCapacity: 1,
-                maxCapacity: 1,
-            },
-            {
-                instance: ec2.InstanceClass.T2,
-                size: ec2.InstanceSize.NANO,
-                hardwareType: ecs.AmiHardwareType.STANDARD,
-                minCapacity: 1,
-                maxCapacity: 1,
+                maxCapacity: 2,
             },
             {
                 instance: ec2.InstanceClass.T4G,
-                size: ec2.InstanceSize.NANO,
+                size: ec2.InstanceSize.SMALL,
                 hardwareType: ecs.AmiHardwareType.ARM,
                 minCapacity: 1,
-                maxCapacity: 2,
+                maxCapacity: 1,
             },
         ];
 
