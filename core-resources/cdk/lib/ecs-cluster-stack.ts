@@ -81,9 +81,9 @@ export class EcsClusterStack extends NestedStack {
                 maxCapacity: 2,
             },
             {
-                instance: ec2.InstanceClass.T4G,
+                instance: ec2.InstanceClass.T3A,
                 size: ec2.InstanceSize.SMALL,
-                hardwareType: ecs.AmiHardwareType.ARM,
+                hardwareType: ecs.AmiHardwareType.STANDARD,
                 minCapacity: 1,
                 maxCapacity: 1,
             },
