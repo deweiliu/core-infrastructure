@@ -48,6 +48,13 @@ Resources:
     DeletionPolicy: Snapshot
     UpdateReplacePolicy: Snapshot
 
+  MySqlEndpoint:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /core/mysql/endpoint
+      Type: String
+      Value: !GetAtt MySql.Endpoint.Address
+
   MySqlSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
