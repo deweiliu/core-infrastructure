@@ -42,7 +42,7 @@ Resources:
       AutoMinorVersionUpgrade: true
       DBSubnetGroupName: core-mysql-subnet-group
       PubliclyAccessible: false
-      BackupRetentionPeriod: 14
+      BackupRetentionPeriod: 10
       DeleteAutomatedBackups: false
       DeletionProtection: true
     DeletionPolicy: Snapshot
