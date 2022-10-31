@@ -29,9 +29,10 @@ export class LoadBalancingStack extends NestedStack {
                 vpcId: props.vpc.vpcId,
                 availabilityZone: props.vpc.availabilityZones[azIndex],
                 cidrBlock: `10.0.${props.appId}.${(azIndex + 2) * 16}/28`,
+                //TODO: add Ipv6 CIDR
                 mapPublicIpOnLaunch: true,
             });
-            new ec2.CfnRoute(this, 'PublicRouting' + azIndex, {
+            new ec2.CfnRoute(this, 'Ipv4PublicRouting' + azIndex, {
                 destinationCidrBlock: '0.0.0.0/0',
                 routeTableId: subnet.routeTable.routeTableId,
                 gatewayId: props.igwId,
@@ -52,6 +53,7 @@ export class LoadBalancingStack extends NestedStack {
                 internetFacing: true,
                 vpcSubnets: { subnets },
                 securityGroup: this.albSecurityGroup,
+                // ipAddressType: elb.IpAddressType.DUAL_STACK,
             });
 
         const httpListener = this.loadBalancer.addRedirect({
@@ -67,7 +69,7 @@ export class LoadBalancingStack extends NestedStack {
         this.httpsListener = this.loadBalancer.addListener('HttpsListner', {
             port: 443,
             protocol: elb.ApplicationProtocol.HTTPS,
-            defaultAction: elb.ListenerAction.redirect({ host: 'dliu.com', permanent: true }),
+            defaultAction: elb.ListenerAction.redirect({ host: props.hostedZone.zoneName, permanent: true }),
             certificates: [certificate],
         });
     }

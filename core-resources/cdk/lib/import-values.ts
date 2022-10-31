@@ -34,8 +34,8 @@ export class ImportValues extends Construct {
             Fn.importValue('Core-MySqlSecurityGroup'));
 
         this.hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
-            hostedZoneId: Fn.importValue('DLIUCOMHostedZoneID'),
-            zoneName: 'dliu.com',
+            hostedZoneId: Fn.importValue('MainHostedZoneId'),
+            zoneName: Fn.importValue('MainDomain'),
         });
     }
 }

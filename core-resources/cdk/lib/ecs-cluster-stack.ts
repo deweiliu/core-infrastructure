@@ -37,6 +37,11 @@ export class EcsClusterStack extends NestedStack {
     constructor(scope: Construct, id: string, props: EcsClusterStackProps) {
         super(scope, id);
 
+        const ecsKeyPair=new ec2.CfnKeyPair(this,'ECSKeyPair',{
+            keyName:'ecs-instance',
+            keyType:'rsa',
+        });
+
         const subnets: ec2.ISubnet[] = [];
 
         [...Array(props.maxAzs).keys()].forEach(azIndex => {
@@ -94,7 +99,7 @@ export class EcsClusterStack extends NestedStack {
             const asg = new autoscaling.AutoScalingGroup(this, 'CoreASG' + index, {
                 instanceType: ec2.InstanceType.of(config.instance, config.size),
                 machineImage: ecs.EcsOptimizedImage.amazonLinux2(config.hardwareType),
-                keyName: 'ecs-instance',
+                keyName: ecsKeyPair.keyName,
                 blockDevices: [{
                     deviceName: '/dev/xvda',
                     volume: autoscaling.BlockDeviceVolume.ebs(
